@@ -3,27 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caesar Cipher Tool</title>
+    <title>Advanced Cipher Toolkit</title>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --hover-color: #2980b9;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+            display: flex;
+            min-height: 100vh;
         }
 
-        .container {
+        .sidebar {
+            width: 200px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-item {
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-item:hover {
+            background-color: var(--hover-color);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .cipher-section {
             background-color: white;
-            padding: 20px;
+            padding: 25px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
 
         .input-group {
@@ -32,76 +59,102 @@
 
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #555;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 500;
         }
 
         textarea {
             width: 100%;
-            padding: 8px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            min-height: 100px;
+            min-height: 120px;
             resize: vertical;
+            font-family: monospace;
         }
 
-        input[type="number"] {
-            width: 100px;
-            padding: 8px;
+        .number-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        select {
-            padding: 8px;
-            width: 100%;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
+        .number-input button {
+            padding: 5px 12px;
             border: none;
+            background-color: var(--secondary-color);
+            color: white;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
-            font-size: 16px;
+            transition: background-color 0.3s;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .number-input button:hover {
+            background-color: var(--hover-color);
         }
 
         #result {
             margin-top: 20px;
             padding: 15px;
-            background-color: #f8f8f8;
+            background-color: #f8f9fa;
             border-radius: 4px;
             white-space: pre-wrap;
+            min-height: 100px;
+        }
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Caesar Cipher Encoder/Decoder</h1>
-        
+    <div class="sidebar">
+        <div class="sidebar-item" data-cipher="caesar">Caesar Cipher</div>
+        <div class="sidebar-item" data-cipher="binary">Binary</div>
+        <div class="sidebar-item" data-cipher="base64">Base64</div>
+        <div class="sidebar-item" data-cipher="morse">Morse Code</div>
+        <div class="sidebar-item" data-cipher="braille">Braille</div>
+        <div class="sidebar-item" data-cipher="hex">Hexadecimal</div>
+        <div class="sidebar-item" data-cipher="xor">XOR Cipher</div>
+        <div class="sidebar-item" data-cipher="atbash">Atbash</div>
+    </div>
+
+    <div class="main-content">
+        <div class="cipher-section" id="caesar">
+            <div class="input-group">
+                <label>Shift Amount:</label>
+                <div class="number-input">
+                    <button onclick="adjustShift(-1)">-</button>
+                    <input type="number" id="shift" value="3" min="1" max="25" style="width: 60px;">
+                    <button onclick="adjustShift(1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cipher-section hidden" id="xor">
+            <div class="input-group">
+                <label>XOR Key:</label>
+                <div class="number-input">
+                    <button onclick="adjustXorKey(-1)">-</button>
+                    <input type="number" id="xorKey" value="0" min="0" max="255" style="width: 80px;">
+                    <button onclick="adjustXorKey(1)">+</button>
+                </div>
+            </div>
+        </div>
+
         <div class="input-group">
             <label for="inputText">Input Text:</label>
-            <textarea id="inputText" placeholder="Enter text to encode/decode..."></textarea>
+            <textarea id="inputText" placeholder="Enter text here..."></textarea>
         </div>
 
         <div class="input-group">
-            <label for="shift">Shift Amount:</label>
-            <input type="number" id="shift" min="1" max="25" value="3">
-        </div>
-
-        <div class="input-group">
-            <label for="mode">Action:</label>
+            <label>Action:</label>
             <select id="mode">
                 <option value="encode">Encode</option>
                 <option value="decode">Decode</option>
             </select>
         </div>
-
-        <button onclick="processText()">Process Text</button>
 
         <div class="input-group">
             <label>Result:</label>
@@ -110,48 +163,129 @@
     </div>
 
     <script>
+        let currentCipher = 'caesar';
+        const cipherMappings = {
+            caesar: { needsNumber: true },
+            xor: { needsNumber: true },
+            binary: { needsNumber: false },
+            base64: { needsNumber: false },
+            morse: { needsNumber: false },
+            braille: { needsNumber: false },
+            hex: { needsNumber: false },
+            atbash: { needsNumber: false }
+        };
+
+        // Event Listeners
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', () => {
+                currentCipher = item.dataset.cipher;
+                document.querySelectorAll('.cipher-section').forEach(el => el.classList.add('hidden'));
+                document.getElementById(currentCipher).classList.remove('hidden');
+                processText();
+            });
+        });
+
+        document.getElementById('inputText').addEventListener('input', processText);
+        document.getElementById('mode').addEventListener('change', processText);
+        document.getElementById('shift').addEventListener('input', processText);
+        document.getElementById('xorKey').addEventListener('input', processText);
+
+        function adjustShift(amount) {
+            const shiftInput = document.getElementById('shift');
+            shiftInput.value = Math.max(1, Math.min(25, +shiftInput.value + amount));
+            processText();
+        }
+
+        function adjustXorKey(amount) {
+            const xorInput = document.getElementById('xorKey');
+            xorInput.value = Math.max(0, Math.min(255, +xorInput.value + amount));
+            processText();
+        }
+
         function processText() {
             const inputText = document.getElementById('inputText').value;
-            const shift = parseInt(document.getElementById('shift').value) || 0;
             const mode = document.getElementById('mode').value;
-            
-            const result = caesarCipher(inputText, shift, mode);
+            let result;
+
+            switch(currentCipher) {
+                case 'caesar':
+                    result = caesarCipher(inputText, document.getElementById('shift').value, mode);
+                    break;
+                case 'binary':
+                    result = mode === 'encode' ? textToBinary(inputText) : binaryToText(inputText);
+                    break;
+                case 'base64':
+                    result = mode === 'encode' ? btoa(inputText) : atob(inputText);
+                    break;
+                case 'morse':
+                    result = mode === 'encode' ? textToMorse(inputText) : morseToText(inputText);
+                    break;
+                case 'braille':
+                    result = mode === 'encode' ? textToBraille(inputText) : brailleToText(inputText);
+                    break;
+                case 'hex':
+                    result = mode === 'encode' ? textToHex(inputText) : hexToText(inputText);
+                    break;
+                case 'xor':
+                    result = xorCipher(inputText, document.getElementById('xorKey').value);
+                    break;
+                case 'atbash':
+                    result = atbashCipher(inputText);
+                    break;
+            }
+
             document.getElementById('result').textContent = result;
         }
 
+        // Cipher Implementations
         function caesarCipher(text, shift, mode) {
-            // Adjust shift for decoding
-            if (mode === 'decode') {
-                shift = -shift;
-            }
-            
-            // Normalize the shift value
-            shift = shift % 26;
-            if (shift < 0) {
-                shift += 26;
-            }
+            shift = mode === 'decode' ? -shift : +shift;
+            return text.replace(/[a-z]/gi, c => {
+                const code = c.charCodeAt(0);
+                const base = code > 96 ? 97 : 65;
+                return String.fromCharCode((code - base + shift + 26) % 26 + base);
+            });
+        }
 
-            let result = '';
+        function textToBinary(text) {
+            return text.split('').map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+        }
 
-            for (let i = 0; i < text.length; i++) {
-                let char = text[i];
-                let code = char.charCodeAt(0);
+        function binaryToText(binary) {
+            return binary.split(' ').map(b => String.fromCharCode(parseInt(b, 2))).join('');
+        }
 
-                // Handle uppercase letters
-                if (code >= 65 && code <= 90) {
-                    result += String.fromCharCode(((code - 65 + shift) % 26) + 65);
-                }
-                // Handle lowercase letters
-                else if (code >= 97 && code <= 122) {
-                    result += String.fromCharCode(((code - 97 + shift) % 26) + 97);
-                }
-                // Handle all other characters
-                else {
-                    result += char;
-                }
-            }
+        function textToMorse(text) {
+            const morseCode = {
+                'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+                // Add full morse code alphabet here
+            };
+            return text.toUpperCase().split('').map(c => morseCode[c] || c).join(' ');
+        }
 
-            return result;
+        function textToBraille(text) {
+            const brailleMap = {
+                'A': '⠁', 'B': '⠃', 'C': '⠉', // Add full braille alphabet
+            };
+            return text.toUpperCase().split('').map(c => brailleMap[c] || c).join('');
+        }
+
+        function textToHex(text) {
+            return text.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
+        }
+
+        function xorCipher(text, key) {
+            return text.split('').map(c => 
+                String.fromCharCode(c.charCodeAt(0) ^ key)
+            ).join('');
+        }
+
+        function atbashCipher(text) {
+            return text.replace(/[a-z]/gi, c => {
+                const code = c.charCodeAt(0);
+                const base = code > 96 ? 122 : 90;
+                return String.fromCharCode(base - (code - (code > 96 ? 97 : 65)));
+            });
         }
     </script>
 </body>
