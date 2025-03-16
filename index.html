@@ -1,1 +1,151 @@
-<h1>Hello!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHERLOCKED</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-image: url('https://source.unsplash.com/1920x1080/?bokeh');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            font-size: 5em;
+            letter-spacing: 0.1em;
+            margin: 0;
+        }
+
+        .input-box {
+            display: inline-block;
+            padding: 5px;
+            border: 2px solid #fff;
+            margin: 0 5px;
+            width: 80px;
+        }
+
+        input {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1em;
+            text-transform: uppercase;
+            outline: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .correct {
+            font-size: 1.5em;
+            color: limegreen;
+            margin-top: 20px;
+        }
+
+        .wrong {
+            font-size: 1.5em;
+            color: red;
+            margin-top: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .popup {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            opacity: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1.5em;
+            z-index: 1000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .popup.show {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>I AM 
+            <span class="input-box"><input type="text" id="input1" maxlength="1"></span>
+            <span class="input-box"><input type="text" id="input2" maxlength="1"></span>
+            <span class="input-box"><input type="text" id="input3" maxlength="1"></span>
+            <span class="input-box"><input type="text" id="input4" maxlength="1"></span>
+            LOCKED
+        </h1>
+        <p id="status" class="wrong">Incorrect</p>
+    </div>
+
+    <div class="popup" id="popup">
+        Well Done!
+    </div>
+
+    <script>
+        const inputs = [
+            document.getElementById('input1'),
+            document.getElementById('input2'),
+            document.getElementById('input3'),
+            document.getElementById('input4')
+        ];
+
+        const status = document.getElementById('status');
+        const container = document.querySelector('.container');
+        const popup = document.getElementById('popup');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                const value = e.target.value.toUpperCase();
+                status.textContent = 'Incorrect';
+                status.classList.remove('correct');
+                status.classList.add('wrong');
+                
+                if (inputs[0].value.toUpperCase() === 'S' &&
+                    inputs[1].value.toUpperCase() === 'H' &&
+                    inputs[2].value.toUpperCase() === 'E' &&
+                    inputs[3].value.toUpperCase() === 'R') {
+                    status.textContent = 'Correct';
+                    status.classList.remove('wrong');
+                    status.classList.add('correct');
+                    
+                    container.style.transform = 'translateY(-50px)';
+                    popup.classList.add('show');
+                } else {
+                    container.style.transform = 'translateY(0)';
+                    container.classList.remove('correct');
+                    popup.classList.remove('show');
+                }
+                
+                if (value && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && index > 0 && !input.value) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
