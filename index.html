@@ -1,37 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Physics Playground</title>
+    <title>Super Physics Playground</title>
     <style>
-        canvas {
-            border: 2px solid #333;
-            background: #f0f0f0;
-            cursor: crosshair;
-        }
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: #222;
-        }
-        .info {
-            position: fixed;
-            top: 10px;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
+        canvas { border: 2px solid #333; background: #f0f0f0; cursor: crosshair; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #222; }
+        .controls { position: fixed; top: 10px; left: 10px; color: white; font-family: Arial, sans-serif; }
+        .slider-container { margin: 5px 0; }
     </style>
 </head>
 <body>
-    <div class="info">Click & drag to throw balls | Double-click to clear</div>
+    <div class="controls">
+        <div>Q - Clear | G - Toggle Machine Gun | Mouse - Physics Interaction</div>
+        <div class="slider-container">
+            Size: <input type="range" id="size" min="1" max="100" value="20">
+            <span id="sizeValue">20</span>
+        </div>
+        <div class="slider-container">
+            Fire Rate: <input type="range" id="fireRate" min="1" max="1000" value="100">
+            <span id="fireRateValue">100</span>
+        </div>
+    </div>
     <canvas id="canvas"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         
+        // Configuration
+        let gravity = 0.5;
+        let bounce = 0.8;
+        let friction = 0.99;
+        let mouseStrength = 0.5;
+        let isMachineGun = false;
+        let fireRate = 100;
+        let lastShot = 0;
+
+        // Elements
+        const sizeSlider = document.getElementById('size');
+        const sizeValue = document.getElementById('sizeValue');
+        const fireRateSlider = document.getElementById('fireRate');
+        const fireRateValue = document.getElementById('fireRateValue');
+
         // Set canvas size
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9;
@@ -41,39 +51,30 @@
         window.addEventListener('resize', resizeCanvas);
 
         const balls = [];
-        const gravity = 0.5;
-        const bounce = 0.8;
-        const friction = 0.99;
-        let mouseDown = false;
-        let startPos = { x: 0, y: 0 };
-        let endPos = { x: 0, y: 0 };
-
+        
         class Ball {
-            constructor(x, y, vx, vy) {
+            constructor(x, y, vx, vy, size) {
                 this.x = x;
                 this.y = y;
                 this.vx = vx;
                 this.vy = vy;
-                this.radius = Math.random() * 15 + 10;
+                this.radius = size;
                 this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
             }
 
             update() {
-                // Apply physics
                 this.vy += gravity;
                 this.x += this.vx;
                 this.y += this.vy;
                 this.vx *= friction;
                 this.vy *= friction;
 
-                // Floor collision
                 if (this.y + this.radius > canvas.height) {
                     this.y = canvas.height - this.radius;
                     this.vy *= -bounce;
                     this.vx *= 0.9;
                 }
 
-                // Wall collisions
                 if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
                     this.vx *= -bounce;
                     this.x = this.x - this.radius < 0 ? this.radius : canvas.width - this.radius;
@@ -89,6 +90,35 @@
             }
         }
 
+        class Mouse {
+            constructor() {
+                this.x = 0;
+                this.y = 0;
+                this.radius = 50;
+                this.strength = mouseStrength;
+            }
+            
+            update(e) {
+                this.x = e.offsetX;
+                this.y = e.offsetY;
+            }
+            
+            interact(ball) {
+                const dx = this.x - ball.x;
+                const dy = this.y - ball.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const maxDistance = this.radius + ball.radius;
+                
+                if (distance < maxDistance) {
+                    const force = (maxDistance - distance) / maxDistance;
+                    ball.vx += (dx / distance) * force * this.strength;
+                    ball.vy += (dy / distance) * force * this.strength;
+                }
+            }
+        }
+
+        const mouse = new Mouse();
+
         function handleCollisions() {
             for (let i = 0; i < balls.length; i++) {
                 for (let j = i + 1; j < balls.length; j++) {
@@ -101,13 +131,11 @@
                         const angle = Math.atan2(dy, dx);
                         const overlap = minDistance - distance;
                         
-                        // Separate balls
                         balls[i].x -= overlap * Math.cos(angle) * 0.5;
                         balls[i].y -= overlap * Math.sin(angle) * 0.5;
                         balls[j].x += overlap * Math.cos(angle) * 0.5;
                         balls[j].y += overlap * Math.sin(angle) * 0.5;
 
-                        // Collision response
                         const speed1 = Math.sqrt(balls[i].vx * balls[i].vx + balls[i].vy * balls[i].vy);
                         const speed2 = Math.sqrt(balls[j].vx * balls[j].vx + balls[j].vy * balls[j].vy);
                         const direction = angle;
@@ -128,47 +156,50 @@
             balls.forEach(ball => {
                 ball.update();
                 ball.draw();
+                mouse.interact(ball);
             });
 
             handleCollisions();
-
-            // Draw launch line
-            if (mouseDown) {
-                ctx.beginPath();
-                ctx.moveTo(startPos.x, startPos.y);
-                ctx.lineTo(endPos.x, endPos.y);
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.closePath();
-            }
-
             requestAnimationFrame(animate);
         }
 
-        // Mouse events
+        // Event Listeners
+        canvas.addEventListener('mousemove', (e) => mouse.update(e));
+        
         canvas.addEventListener('mousedown', (e) => {
-            mouseDown = true;
-            startPos = { x: e.offsetX, y: e.offsetY };
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (mouseDown) {
-                endPos = { x: e.offsetX, y: e.offsetY };
-            }
+            if (!isMachineGun) return;
+            const shoot = () => {
+                if (Date.now() - lastShot > 1000/fireRate) {
+                    const angle = Math.random() * Math.PI * 2;
+                    balls.push(new Ball(
+                        e.offsetX, e.offsetY,
+                        Math.cos(angle) * 20,
+                        Math.sin(angle) * 20,
+                        parseInt(sizeSlider.value)
+                    ));
+                    lastShot = Date.now();
+                }
+                requestAnimationFrame(shoot);
+            };
+            shoot();
         });
 
         canvas.addEventListener('mouseup', (e) => {
-            if (mouseDown) {
-                mouseDown = false;
-                const velocityX = (startPos.x - e.offsetX) * 0.2;
-                const velocityY = (startPos.y - e.offsetY) * 0.2;
-                balls.push(new Ball(startPos.x, startPos.y, velocityX, velocityY));
-            }
+            if (isMachineGun) return;
+            const velocityX = (mouse.x - e.offsetX) * 0.2;
+            const velocityY = (mouse.y - e.offsetY) * 0.2;
+            balls.push(new Ball(mouse.x, mouse.y, velocityX, velocityY, parseInt(sizeSlider.value)));
         });
 
-        canvas.addEventListener('dblclick', () => {
-            balls.length = 0;
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'q') balls.length = 0;
+            if (e.key.toLowerCase() === 'g') isMachineGun = !isMachineGun;
+        });
+
+        sizeSlider.addEventListener('input', () => sizeValue.textContent = sizeSlider.value);
+        fireRateSlider.addEventListener('input', () => {
+            fireRate = fireRateSlider.value;
+            fireRateValue.textContent = fireRate;
         });
 
         animate();
