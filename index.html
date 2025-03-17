@@ -1,396 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Cipher Toolkit</title>
+    <title>Oefenen met het Köppensysteem</title>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --hover-color: #2980b9;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f6fa;
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 200px;
-            background-color: var(--primary-color);
-            color: white;
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            background-color: #f0f0f0;
         }
 
-        .sidebar-item {
-            padding: 10px;
-            margin: 5px 0;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar-item:hover {
-            background-color: var(--hover-color);
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 30px;
-        }
-
-        .cipher-section {
+        .container {
             background-color: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .question {
             margin-bottom: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--primary-color);
-            font-weight: 500;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            min-height: 120px;
-            resize: vertical;
-            font-family: monospace;
-        }
-
-        .number-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .number-input button {
-            padding: 5px 12px;
-            border: none;
-            background-color: var(--secondary-color);
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .number-input button:hover {
-            background-color: var(--hover-color);
-        }
-
-        #result {
-            margin-top: 20px;
             padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            white-space: pre-wrap;
-            min-height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
 
-        .hidden {
-            display: none;
-        }
-
-        .button-group {
-            display: flex;
+        .options {
+            display: grid;
             gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .action-button {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .action-button:hover {
-            background-color: var(--hover-color);
-        }
-
-        .copy-paste-buttons {
-            display: flex;
-            gap: 5px;
             margin-top: 10px;
         }
 
-        #modeToggle {
-            width: 100px;
-            background-color: #27ae60;
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
-        #modeToggle:hover {
-            background-color: #219a52;
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .score {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        .correct {
+            background-color: #dfffdf !important;
+        }
+
+        .wrong {
+            background-color: #ffe6e6 !important;
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-item" data-cipher="caesar">Caesar Cipher</div>
-        <div class="sidebar-item" data-cipher="binary">Binary</div>
-        <div class="sidebar-item" data-cipher="base64">Base64</div>
-        <div class="sidebar-item" data-cipher="morse">Morse Code</div>
-        <div class="sidebar-item" data-cipher="braille">Braille</div>
-        <div class="sidebar-item" data-cipher="hex">Hexadecimal</div>
-        <div class="sidebar-item" data-cipher="xor">XOR Cipher</div>
-        <div class="sidebar-item" data-cipher="atbash">Atbash</div>
-    </div>
-
-    <div class="main-content">
-        <div class="cipher-section" id="caesar">
-            <div class="input-group">
-                <label>Shift Amount:</label>
-                <div class="number-input">
-                    <button onclick="adjustShift(-1)">-</button>
-                    <input type="number" id="shift" value="3" min="1" max="25" style="width: 60px;">
-                    <button onclick="adjustShift(1)">+</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="cipher-section hidden" id="xor">
-            <div class="input-group">
-                <label>XOR Key:</label>
-                <div class="number-input">
-                    <button onclick="adjustXorKey(-1)">-</button>
-                    <input type="number" id="xorKey" value="0" min="0" max="255" style="width: 80px;">
-                    <button onclick="adjustXorKey(1)">+</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="input-group">
-            <label for="inputText">Input Text:</label>
-            <textarea id="inputText" placeholder="Enter text here..."></textarea>
-        </div>
-
-        <div class="button-group">
-            <button id="modeToggle" class="action-button" onclick="toggleMode()">Encode</button>
-            <div class="copy-paste-buttons">
-                <button class="action-button" onclick="copyResult()">Copy</button>
-                <button class="action-button" onclick="pasteText()">Paste</button>
-            </div>
-        </div>
-
-        <div class="input-group">
-            <label>Result:</label>
-            <div id="result"></div>
-        </div>
+    <div class="container">
+        <h1>Oefentest Köppensysteem</h1>
+        <div id="quiz"></div>
+        <div id="result" class="score"></div>
     </div>
 
     <script>
-        let currentCipher = 'caesar';
-        const cipherMappings = {
-            caesar: { needsNumber: true },
-            xor: { needsNumber: true },
-            binary: { needsNumber: false },
-            base64: { needsNumber: false },
-            morse: { needsNumber: false },
-            braille: { needsNumber: false },
-            hex: { needsNumber: false },
-            atbash: { needsNumber: false }
-        };
+        const vragen = [
+            // Tropische klimaten (A)
+            { code: 'Af', correct: 'Tropisch regenwoudklimaat', keuzes: ['Tropisch moessonklimaat', 'Tropisch savanneklimaat', 'Tropisch regenwoudklimaat', 'Woestijnklimaat'] },
+            { code: 'Am', correct: 'Tropisch moessonklimaat', keuzes: ['Tropisch regenwoudklimaat', 'Tropisch moessonklimaat', 'Landklimaat', 'Steppeklimaat'] },
+            { code: 'Aw', correct: 'Tropisch savanneklimaat', keuzes: ['Tropisch regenwoudklimaat', 'Tropisch moessonklimaat', 'Tropisch savanneklimaat', 'Zeeklimaat'] },
 
-        // Event Listeners
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.addEventListener('click', () => {
-                currentCipher = item.dataset.cipher;
-                document.querySelectorAll('.cipher-section').forEach(el => el.classList.add('hidden'));
-                document.getElementById(currentCipher).classList.remove('hidden');
-                processText();
-            });
-        });
+            // Droge klimaten (B)
+            { code: 'BWh', correct: 'Heet woestijnklimaat', keuzes: ['Koud woestijnklimaat', 'Heet steppeklimaat', 'Heet woestijnklimaat', 'Koud steppeklimaat'] },
+            { code: 'BWk', correct: 'Koud woestijnklimaat', keuzes: ['Heet woestijnklimaat', 'Koud steppeklimaat', 'Koud woestijnklimaat', 'Toendraklimaat'] },
+            { code: 'BSh', correct: 'Heet steppeklimaat', keuzes: ['Heet woestijnklimaat', 'Heet steppeklimaat', 'Koud steppeklimaat', 'Mediterraan klimaat'] },
+            { code: 'BSk', correct: 'Koud steppeklimaat', keuzes: ['Heet steppeklimaat', 'Koud woestijnklimaat', 'Koud steppeklimaat', 'Landklimaat'] },
 
-        document.getElementById('inputText').addEventListener('input', processText);
-        document.getElementById('shift').addEventListener('input', processText);
-        document.getElementById('xorKey').addEventListener('input', processText);
+            // Gematigde klimaten (C)
+            { code: 'Csa', correct: 'Mediterraan klimaat (hete zomer)', keuzes: ['Mediterraan klimaat (hete zomer)', 'Zeeklimaat', 'Landklimaat', 'Vochtig subtropisch klimaat'] },
+            { code: 'Csb', correct: 'Mediterraan klimaat (milde zomer)', keuzes: ['Mediterraan klimaat (hete zomer)', 'Mediterraan klimaat (milde zomer)', 'Subarctisch klimaat', 'Toendraklimaat'] },
+            { code: 'Cfa', correct: 'Vochtig subtropisch klimaat', keuzes: ['Mediterraan klimaat', 'Vochtig subtropisch klimaat', 'Landklimaat', 'Zeeklimaat'] },
+            { code: 'Cfb', correct: 'Zeeklimaat', keuzes: ['Landklimaat', 'Zeeklimaat', 'Subarctisch klimaat', 'Toendraklimaat'] },
+            { code: 'Cfc', correct: 'Koel zeeklimaat', keuzes: ['Zeeklimaat', 'Koel zeeklimaat', 'Subarctisch klimaat', 'Toendraklimaat'] },
 
-        // Cipher Implementations
-        const morseCode = {
-            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
-            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
-            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
-            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
-            'Y': '-.--', 'Z': '--..', ' ': '/', '1': '.----', '2': '..---', '3': '...--',
-            '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
-            '9': '----.', '0': '-----'
-        };
+            // Continentale klimaten (D)
+            { code: 'Dfa', correct: 'Heet zomer landklimaat', keuzes: ['Landklimaat met milde zomer', 'Heet zomer landklimaat', 'Subarctisch klimaat', 'Toendraklimaat'] },
+            { code: 'Dfb', correct: 'Landklimaat met milde zomer', keuzes: ['Heet zomer landklimaat', 'Landklimaat met milde zomer', 'Subarctisch klimaat', 'Toendraklimaat'] },
+            { code: 'Dfc', correct: 'Subarctisch klimaat', keuzes: ['Landklimaat', 'Subarctisch klimaat', 'Toendraklimaat', 'IJsklimaat'] },
+            { code: 'Dfd', correct: 'Extreem subarctisch klimaat', keuzes: ['Subarctisch klimaat', 'Extreem subarctisch klimaat', 'Toendraklimaat', 'IJsklimaat'] },
 
-        const brailleMap = {
-            'A': '⠁', 'B': '⠃', 'C': '⠉', 'D': '⠙', 'E': '⠑', 'F': '⠋',
-            'G': '⠛', 'H': '⠓', 'I': '⠊', 'J': '⠚', 'K': '⠅', 'L': '⠇',
-            'M': '⠍', 'N': '⠝', 'O': '⠕', 'P': '⠏', 'Q': '⠟', 'R': '⠗',
-            'S': '⠎', 'T': '⠞', 'U': '⠥', 'V': '⠧', 'W': '⠺', 'X': '⠭',
-            'Y': '⠽', 'Z': '⠵', ' ': ' '
-        };
+            // Poolklimaten (E)
+            { code: 'ET', correct: 'Toendraklimaat', keuzes: ['Toendraklimaat', 'IJsklimaat', 'Subarctisch klimaat', 'Alpenklimaat'] },
+            { code: 'EF', correct: 'IJsklimaat', keuzes: ['Toendraklimaat', 'IJsklimaat', 'Subarctisch klimaat', 'Bergklimaat'] }
+        ];
 
-        const morseCodeReverse = Object.fromEntries(
-            Object.entries(morseCode).map(([k, v]) => [v, k])
-        );
-        const brailleMapReverse = Object.fromEntries(
-            Object.entries(brailleMap).map(([k, v]) => [v, k])
-        );
+        let huidigeVraag = 0;
+        let score = 0;
+        let geschuddeVragen = [];
+        let gebruikersAntwoorden = [];
 
-        function toggleMode() {
-            const toggle = document.getElementById('modeToggle');
-            const input = document.getElementById('inputText');
-            const result = document.getElementById('result');
-            
-            // Swap values
-            [input.value, result.textContent] = [result.textContent, input.value];
-            
-            // Toggle button text
-            toggle.textContent = toggle.textContent === 'Encode' ? 'Decode' : 'Encode';
-            processText();
-        }
-
-        function adjustShift(amount) {
-            const shiftInput = document.getElementById('shift');
-            shiftInput.value = Math.max(1, Math.min(25, +shiftInput.value + amount));
-            processText();
-        }
-
-        function adjustXorKey(amount) {
-            const xorInput = document.getElementById('xorKey');
-            xorInput.value = Math.max(0, Math.min(255, +xorInput.value + amount));
-            processText();
-        }
-
-        function processText() {
-            const inputText = document.getElementById('inputText').value;
-            const mode = document.getElementById('modeToggle').textContent.toLowerCase();
-            let result;
-
-            switch(currentCipher) {
-                case 'caesar':
-                    result = caesarCipher(inputText, document.getElementById('shift').value, mode);
-                    break;
-                case 'binary':
-                    result = mode === 'encode' ? textToBinary(inputText) : binaryToText(inputText);
-                    break;
-                case 'base64':
-                    result = mode === 'encode' ? btoa(inputText) : atob(inputText);
-                    break;
-                case 'morse':
-                    result = mode === 'encode' ? textToMorse(inputText) : morseToText(inputText);
-                    break;
-                case 'braille':
-                    result = mode === 'encode' ? textToBraille(inputText) : brailleToText(inputText);
-                    break;
-                case 'hex':
-                    result = mode === 'encode' ? textToHex(inputText) : hexToText(inputText);
-                    break;
-                case 'xor':
-                    result = xorCipher(inputText, document.getElementById('xorKey').value);
-                    break;
-                case 'atbash':
-                    result = atbashCipher(inputText);
-                    break;
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
-
-            document.getElementById('result').textContent = result;
         }
 
-        function caesarCipher(text, shift, mode) {
-            shift = mode === 'decode' ? -shift : +shift;
-            return text.replace(/[a-z]/gi, c => {
-                const code = c.charCodeAt(0);
-                const base = code > 96 ? 97 : 65;
-                return String.fromCharCode((code - base + shift + 26) % 26 + base);
+        function startQuiz() {
+            geschuddeVragen = [...vragen];
+            shuffleArray(geschuddeVragen);
+            
+            geschuddeVragen.forEach(vraag => {
+                shuffleArray(vraag.keuzes);
+            });
+
+            toonVraag();
+        }
+
+        function toonVraag() {
+            const quiz = document.getElementById('quiz');
+            const vraag = geschuddeVragen[huidigeVraag];
+            
+            quiz.innerHTML = `
+                <div class="question">
+                    <h3>Vraag ${huidigeVraag + 1}</h3>
+                    <p>Welk klimaattype hoort bij de code ${vraag.code}?</p>
+                    <div class="options" id="opties"></div>
+                </div>
+            `;
+
+            const optiesContainer = document.getElementById('opties');
+            vraag.keuzes.forEach(keuze => {
+                const button = document.createElement('button');
+                button.innerHTML = keuze;
+                button.onclick = () => selecteerAntwoord(keuze);
+                optiesContainer.appendChild(button);
             });
         }
 
-        function textToBinary(text) {
-            return text.split('').map(c => 
-                c.charCodeAt(0).toString(2).padStart(8, '0')
-            ).join(' ');
-        }
-
-        function binaryToText(binary) {
-            return binary.split(' ').map(b => 
-                String.fromCharCode(parseInt(b, 2))
-            ).join('');
-        }
-
-        function textToMorse(text) {
-            return text.toUpperCase().split('').map(c => 
-                morseCode[c] || c
-            ).join(' ');
-        }
-
-        function morseToText(morse) {
-            return morse.split(' ').map(s => 
-                morseCodeReverse[s] || s
-            ).join('');
-        }
-
-        function textToBraille(text) {
-            return text.toUpperCase().split('').map(c => 
-                brailleMap[c] || c
-            ).join('');
-        }
-
-        function brailleToText(braille) {
-            return braille.split('').map(c => 
-                brailleMapReverse[c] || c
-            ).join('');
-        }
-
-        function textToHex(text) {
-            return text.split('').map(c => 
-                c.charCodeAt(0).toString(16).padStart(2, '0')
-            ).join(' ');
-        }
-
-        function hexToText(hex) {
-            return hex.split(' ').filter(x => x).map(h => 
-                String.fromCharCode(parseInt(h, 16))
-            ).join('');
-        }
-
-        function xorCipher(text, key) {
-            return text.split('').map(c => 
-                String.fromCharCode(c.charCodeAt(0) ^ key)
-            ).join('');
-        }
-
-        function atbashCipher(text) {
-            return text.replace(/[a-z]/gi, c => {
-                const code = c.charCodeAt(0);
-                const base = code > 96 ? 122 : 90;
-                return String.fromCharCode(base - (code - (code > 96 ? 97 : 65)));
+        function selecteerAntwoord(geselecteerd) {
+            const vraag = geschuddeVragen[huidigeVraag];
+            gebruikersAntwoorden[huidigeVraag] = geselecteerd;
+            
+            const opties = document.querySelectorAll('#opties button');
+            opties.forEach(optie => {
+                optie.classList.remove('correct', 'wrong');
+                if (optie.innerHTML === vraag.correct) {
+                    optie.classList.add('correct');
+                }
+                if (optie.innerHTML === geselecteerd && geselecteerd !== vraag.correct) {
+                    optie.classList.add('wrong');
+                }
             });
+
+            if (geselecteerd === vraag.correct) score++;
+            
+            setTimeout(() => {
+                huidigeVraag++;
+                if (huidigeVraag < geschuddeVragen.length) {
+                    toonVraag();
+                } else {
+                    toonResultaat();
+                }
+            }, 1000);
         }
 
-        function copyResult() {
-            navigator.clipboard.writeText(document.getElementById('result').textContent);
+        function toonResultaat() {
+            const resultContainer = document.getElementById('result');
+            resultContainer.innerHTML = `
+                <h2>Test Afgerond!</h2>
+                <p>Jouw score: ${score}/${geschuddeVragen.length}</p>
+                <button onclick="location.reload()">Nieuwe Test</button>
+            `;
         }
 
-        function pasteText() {
-            navigator.clipboard.readText().then(text => {
-                document.getElementById('inputText').value = text;
-                processText();
-            });
-        }
+        // Start de quiz bij het laden van de pagina
+        startQuiz();
     </script>
 </body>
 </html>
