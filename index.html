@@ -1,186 +1,177 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oefenen met het Köppensysteem</title>
+    <title>Physics Playground</title>
     <style>
+        canvas {
+            border: 2px solid #333;
+            background: #f0f0f0;
+            cursor: crosshair;
+        }
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #222;
         }
-
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        .question {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .options {
-            display: grid;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        button {
-            padding: 10px;
-            background-color: #4CAF50;
+        .info {
+            position: fixed;
+            top: 10px;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .score {
-            text-align: center;
-            font-size: 1.2em;
-            margin-top: 20px;
-        }
-
-        .correct {
-            background-color: #dfffdf !important;
-        }
-
-        .wrong {
-            background-color: #ffe6e6 !important;
+            font-family: Arial, sans-serif;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Oefentest Köppensysteem</h1>
-        <div id="quiz"></div>
-        <div id="result" class="score"></div>
-    </div>
+    <div class="info">Click & drag to throw balls | Double-click to clear</div>
+    <canvas id="canvas"></canvas>
 
     <script>
-        const vragen = [
-            // Tropische klimaten (A)
-            { code: 'Af', correct: 'Tropisch regenwoudklimaat', keuzes: ['Tropisch moessonklimaat', 'Tropisch savanneklimaat', 'Tropisch regenwoudklimaat', 'Woestijnklimaat'] },
-            { code: 'Am', correct: 'Tropisch moessonklimaat', keuzes: ['Tropisch regenwoudklimaat', 'Tropisch moessonklimaat', 'Landklimaat', 'Steppeklimaat'] },
-            { code: 'Aw', correct: 'Tropisch savanneklimaat', keuzes: ['Tropisch regenwoudklimaat', 'Tropisch moessonklimaat', 'Tropisch savanneklimaat', 'Zeeklimaat'] },
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * 0.9;
+            canvas.height = window.innerHeight * 0.8;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-            // Droge klimaten (B)
-            { code: 'BWh', correct: 'Heet woestijnklimaat', keuzes: ['Koud woestijnklimaat', 'Heet steppeklimaat', 'Heet woestijnklimaat', 'Koud steppeklimaat'] },
-            { code: 'BWk', correct: 'Koud woestijnklimaat', keuzes: ['Heet woestijnklimaat', 'Koud steppeklimaat', 'Koud woestijnklimaat', 'Toendraklimaat'] },
-            { code: 'BSh', correct: 'Heet steppeklimaat', keuzes: ['Heet woestijnklimaat', 'Heet steppeklimaat', 'Koud steppeklimaat', 'Mediterraan klimaat'] },
-            { code: 'BSk', correct: 'Koud steppeklimaat', keuzes: ['Heet steppeklimaat', 'Koud woestijnklimaat', 'Koud steppeklimaat', 'Landklimaat'] },
+        const balls = [];
+        const gravity = 0.5;
+        const bounce = 0.8;
+        const friction = 0.99;
+        let mouseDown = false;
+        let startPos = { x: 0, y: 0 };
+        let endPos = { x: 0, y: 0 };
 
-            // Gematigde klimaten (C)
-            { code: 'Csa', correct: 'Mediterraan klimaat (hete zomer)', keuzes: ['Mediterraan klimaat (hete zomer)', 'Zeeklimaat', 'Landklimaat', 'Vochtig subtropisch klimaat'] },
-            { code: 'Csb', correct: 'Mediterraan klimaat (milde zomer)', keuzes: ['Mediterraan klimaat (hete zomer)', 'Mediterraan klimaat (milde zomer)', 'Subarctisch klimaat', 'Toendraklimaat'] },
-            { code: 'Cfa', correct: 'Vochtig subtropisch klimaat', keuzes: ['Mediterraan klimaat', 'Vochtig subtropisch klimaat', 'Landklimaat', 'Zeeklimaat'] },
-            { code: 'Cfb', correct: 'Zeeklimaat', keuzes: ['Landklimaat', 'Zeeklimaat', 'Subarctisch klimaat', 'Toendraklimaat'] },
-            { code: 'Cfc', correct: 'Koel zeeklimaat', keuzes: ['Zeeklimaat', 'Koel zeeklimaat', 'Subarctisch klimaat', 'Toendraklimaat'] },
+        class Ball {
+            constructor(x, y, vx, vy) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.radius = Math.random() * 15 + 10;
+                this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+            }
 
-            // Continentale klimaten (D)
-            { code: 'Dfa', correct: 'Heet zomer landklimaat', keuzes: ['Landklimaat met milde zomer', 'Heet zomer landklimaat', 'Subarctisch klimaat', 'Toendraklimaat'] },
-            { code: 'Dfb', correct: 'Landklimaat met milde zomer', keuzes: ['Heet zomer landklimaat', 'Landklimaat met milde zomer', 'Subarctisch klimaat', 'Toendraklimaat'] },
-            { code: 'Dfc', correct: 'Subarctisch klimaat', keuzes: ['Landklimaat', 'Subarctisch klimaat', 'Toendraklimaat', 'IJsklimaat'] },
-            { code: 'Dfd', correct: 'Extreem subarctisch klimaat', keuzes: ['Subarctisch klimaat', 'Extreem subarctisch klimaat', 'Toendraklimaat', 'IJsklimaat'] },
+            update() {
+                // Apply physics
+                this.vy += gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= friction;
+                this.vy *= friction;
 
-            // Poolklimaten (E)
-            { code: 'ET', correct: 'Toendraklimaat', keuzes: ['Toendraklimaat', 'IJsklimaat', 'Subarctisch klimaat', 'Alpenklimaat'] },
-            { code: 'EF', correct: 'IJsklimaat', keuzes: ['Toendraklimaat', 'IJsklimaat', 'Subarctisch klimaat', 'Bergklimaat'] }
-        ];
+                // Floor collision
+                if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    this.vy *= -bounce;
+                    this.vx *= 0.9;
+                }
 
-        let huidigeVraag = 0;
-        let score = 0;
-        let geschuddeVragen = [];
-        let gebruikersAntwoorden = [];
+                // Wall collisions
+                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+                    this.vx *= -bounce;
+                    this.x = this.x - this.radius < 0 ? this.radius : canvas.width - this.radius;
+                }
+            }
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
             }
         }
 
-        function startQuiz() {
-            geschuddeVragen = [...vragen];
-            shuffleArray(geschuddeVragen);
-            
-            geschuddeVragen.forEach(vraag => {
-                shuffleArray(vraag.keuzes);
+        function handleCollisions() {
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    const dx = balls[j].x - balls[i].x;
+                    const dy = balls[j].y - balls[i].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const minDistance = balls[i].radius + balls[j].radius;
+
+                    if (distance < minDistance) {
+                        const angle = Math.atan2(dy, dx);
+                        const overlap = minDistance - distance;
+                        
+                        // Separate balls
+                        balls[i].x -= overlap * Math.cos(angle) * 0.5;
+                        balls[i].y -= overlap * Math.sin(angle) * 0.5;
+                        balls[j].x += overlap * Math.cos(angle) * 0.5;
+                        balls[j].y += overlap * Math.sin(angle) * 0.5;
+
+                        // Collision response
+                        const speed1 = Math.sqrt(balls[i].vx * balls[i].vx + balls[i].vy * balls[i].vy);
+                        const speed2 = Math.sqrt(balls[j].vx * balls[j].vx + balls[j].vy * balls[j].vy);
+                        const direction = angle;
+                        
+                        balls[i].vx = Math.cos(direction) * speed2 * bounce;
+                        balls[i].vy = Math.sin(direction) * speed2 * bounce;
+                        balls[j].vx = Math.cos(direction + Math.PI) * speed1 * bounce;
+                        balls[j].vy = Math.sin(direction + Math.PI) * speed1 * bounce;
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(240, 240, 240, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            balls.forEach(ball => {
+                ball.update();
+                ball.draw();
             });
 
-            toonVraag();
+            handleCollisions();
+
+            // Draw launch line
+            if (mouseDown) {
+                ctx.beginPath();
+                ctx.moveTo(startPos.x, startPos.y);
+                ctx.lineTo(endPos.x, endPos.y);
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.closePath();
+            }
+
+            requestAnimationFrame(animate);
         }
 
-        function toonVraag() {
-            const quiz = document.getElementById('quiz');
-            const vraag = geschuddeVragen[huidigeVraag];
-            
-            quiz.innerHTML = `
-                <div class="question">
-                    <h3>Vraag ${huidigeVraag + 1}</h3>
-                    <p>Welk klimaattype hoort bij de code ${vraag.code}?</p>
-                    <div class="options" id="opties"></div>
-                </div>
-            `;
+        // Mouse events
+        canvas.addEventListener('mousedown', (e) => {
+            mouseDown = true;
+            startPos = { x: e.offsetX, y: e.offsetY };
+        });
 
-            const optiesContainer = document.getElementById('opties');
-            vraag.keuzes.forEach(keuze => {
-                const button = document.createElement('button');
-                button.innerHTML = keuze;
-                button.onclick = () => selecteerAntwoord(keuze);
-                optiesContainer.appendChild(button);
-            });
-        }
+        canvas.addEventListener('mousemove', (e) => {
+            if (mouseDown) {
+                endPos = { x: e.offsetX, y: e.offsetY };
+            }
+        });
 
-        function selecteerAntwoord(geselecteerd) {
-            const vraag = geschuddeVragen[huidigeVraag];
-            gebruikersAntwoorden[huidigeVraag] = geselecteerd;
-            
-            const opties = document.querySelectorAll('#opties button');
-            opties.forEach(optie => {
-                optie.classList.remove('correct', 'wrong');
-                if (optie.innerHTML === vraag.correct) {
-                    optie.classList.add('correct');
-                }
-                if (optie.innerHTML === geselecteerd && geselecteerd !== vraag.correct) {
-                    optie.classList.add('wrong');
-                }
-            });
+        canvas.addEventListener('mouseup', (e) => {
+            if (mouseDown) {
+                mouseDown = false;
+                const velocityX = (startPos.x - e.offsetX) * 0.2;
+                const velocityY = (startPos.y - e.offsetY) * 0.2;
+                balls.push(new Ball(startPos.x, startPos.y, velocityX, velocityY));
+            }
+        });
 
-            if (geselecteerd === vraag.correct) score++;
-            
-            setTimeout(() => {
-                huidigeVraag++;
-                if (huidigeVraag < geschuddeVragen.length) {
-                    toonVraag();
-                } else {
-                    toonResultaat();
-                }
-            }, 1000);
-        }
+        canvas.addEventListener('dblclick', () => {
+            balls.length = 0;
+        });
 
-        function toonResultaat() {
-            const resultContainer = document.getElementById('result');
-            resultContainer.innerHTML = `
-                <h2>Test Afgerond!</h2>
-                <p>Jouw score: ${score}/${geschuddeVragen.length}</p>
-                <button onclick="location.reload()">Nieuwe Test</button>
-            `;
-        }
-
-        // Start de quiz bij het laden van de pagina
-        startQuiz();
+        animate();
     </script>
 </body>
 </html>
