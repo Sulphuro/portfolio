@@ -1,208 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Super Physics Playground</title>
-    <style>
-        canvas { border: 2px solid #333; background: #f0f0f0; cursor: crosshair; }
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #222; }
-        .controls { position: fixed; top: 10px; left: 10px; color: white; font-family: Arial, sans-serif; }
-        .slider-container { margin: 5px 0; }
-    </style>
+  <meta charset="UTF-8">
+  <title>In Honour of Seals</title>
+  <style>
+    /* General body styles and underwater background */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #87CEEB, #1E90FF);
+      overflow-x: hidden;
+    }
+    /* Wave container using an SVG */
+    .wave-container {
+      position: relative;
+      height: 150px;
+      overflow: hidden;
+    }
+    .wave-container svg {
+      position: absolute;
+      top: -70px; /* Adjust to control how much the wave pops out */
+      left: 0;
+      width: 100%;
+      height: auto;
+    }
+    /* Underwater content area */
+    .underwater {
+      background: linear-gradient(to bottom, #1E90FF, #000080);
+      padding: 50px 20px;
+      min-height: calc(100vh - 150px);
+      position: relative;
+      color: #fff;
+    }
+    /* Seal container styles */
+    .seal-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .seal-item {
+      position: relative;
+      width: 200px;
+      transition: transform 0.3s;
+    }
+    .seal-item img {
+      width: 100%;
+      display: block;
+      border: 5px solid #fff;
+      border-radius: 10px;
+    }
+    .seal-item:hover {
+      transform: scale(1.1);
+    }
+    /* Tooltip info on hover over each seal image */
+    .seal-info {
+      display: none;
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 5px;
+      width: 180px;
+      text-align: center;
+      font-size: 14px;
+      color: #000;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+    }
+    .seal-item:hover .seal-info {
+      display: block;
+    }
+    /* Hover effect for cool seal fact pop-ups in text */
+    .fact {
+      position: relative;
+      display: inline-block;
+      cursor: pointer;
+      color: #FFD700;
+    }
+    .fact:hover::after {
+      content: " Seals are excellent divers, capable of plunging over 500 feet!";
+      position: absolute;
+      bottom: -25px;
+      left: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    /* Responsive design adjustments */
+    @media (max-width: 600px) {
+      .seal-container {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="controls">
-        <div>Q - Clear | G - Toggle Machine Gun | Mouse - Physics Interaction</div>
-        <div class="slider-container">
-            Size: <input type="range" id="size" min="1" max="100" value="20">
-            <span id="sizeValue">20</span>
-        </div>
-        <div class="slider-container">
-            Fire Rate: <input type="range" id="fireRate" min="1" max="1000" value="100">
-            <span id="fireRateValue">100</span>
-        </div>
+  <!-- Wave effect at the top -->
+  <div class="wave-container">
+    <svg viewBox="0 0 1440 320">
+      <path fill="#fff" fill-opacity="1" d="M0,96L30,106.7C60,117,120,139,180,149.3C240,160,300,160,360,144C420,128,480,96,540,112C600,128,660,192,720,197.3C780,203,840,149,900,149.3C960,149,1020,203,1080,197.3C1140,192,1200,128,1260,101.3C1320,75,1380,85,1410,90.7L1440,96L1440,0L1410,0C1380,0,1320,0,1260,0C1200,0,1140,0,1080,0C1020,0,960,0,900,0C840,0,780,0,720,0C660,0,600,0,540,0C480,0,420,0,360,0C300,0,240,0,180,0C120,0,60,0,30,0L0,0Z"></path>
+    </svg>
+  </div>
+
+  <!-- Main underwater content section -->
+  <div class="underwater">
+    <h1 style="text-align: center;">In Honour of Seals</h1>
+    <p style="text-align: center; max-width: 800px; margin: 0 auto; color: #ddd;">
+      Welcome to our underwater sanctuary dedicated to the majestic seals. Dive into the depths and explore fascinating facts—simply hover over the images or the highlighted <span class="fact">facts</span> to learn more!
+    </p>
+
+    <!-- Seal images with hover info -->
+    <div class="seal-container">
+      <div class="seal-item">
+        <img src="https://pngimg.com/d/harbor_seal_PNG1.png" alt="Harbor Seal 1">
+        <div class="seal-info">Harbor seals inhabit temperate coastal waters and sport beautiful spotted coats.</div>
+      </div>
+      <div class="seal-item">
+        <img src="https://pngimg.com/d/harbor_seal_PNG3.png" alt="Harbor Seal 2">
+        <div class="seal-info">These agile swimmers can dive deep to hunt for fish and other prey.</div>
+      </div>
+      <div class="seal-item">
+        <img src="https://pngimg.com/d/harbor_seal_PNG2.png" alt="Harbor Seal 3">
+        <div class="seal-info">Noted for their expressive eyes, harbor seals captivate with their playful nature.</div>
+      </div>
+      <div class="seal-item">
+        <img src="https://www.pngplay.com/wp-content/uploads/12/Harbor-Seal-Transparent-Images.png" alt="Harbor Seal 4">
+        <div class="seal-info">Adaptable and resilient, these seals thrive in a range of marine environments.</div>
+      </div>
+      <div class="seal-item">
+        <img src="https://png.pngtree.com/png-vector/20230903/ourmid/pngtree-seal-animal-color-png-image_9937592.png" alt="Harbor Seal 5">
+        <div class="seal-info">Seals communicate using a mix of sounds and body language to express themselves.</div>
+      </div>
     </div>
-    <canvas id="canvas"></canvas>
-
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Configuration
-        let gravity = 0.5;
-        let bounce = 0.8;
-        let friction = 0.99;
-        let mouseStrength = 0.5;
-        let isMachineGun = false;
-        let fireRate = 100;
-        let lastShot = 0;
-
-        // Elements
-        const sizeSlider = document.getElementById('size');
-        const sizeValue = document.getElementById('sizeValue');
-        const fireRateSlider = document.getElementById('fireRate');
-        const fireRateValue = document.getElementById('fireRateValue');
-
-        // Set canvas size
-        function resizeCanvas() {
-            canvas.width = window.innerWidth * 0.9;
-            canvas.height = window.innerHeight * 0.8;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        const balls = [];
-        
-        class Ball {
-            constructor(x, y, vx, vy, size) {
-                this.x = x;
-                this.y = y;
-                this.vx = vx;
-                this.vy = vy;
-                this.radius = size;
-                this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
-            }
-
-            update() {
-                this.vy += gravity;
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vx *= friction;
-                this.vy *= friction;
-
-                if (this.y + this.radius > canvas.height) {
-                    this.y = canvas.height - this.radius;
-                    this.vy *= -bounce;
-                    this.vx *= 0.9;
-                }
-
-                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
-                    this.vx *= -bounce;
-                    this.x = this.x - this.radius < 0 ? this.radius : canvas.width - this.radius;
-                }
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.closePath();
-            }
-        }
-
-        class Mouse {
-            constructor() {
-                this.x = 0;
-                this.y = 0;
-                this.radius = 50;
-                this.strength = mouseStrength;
-            }
-            
-            update(e) {
-                this.x = e.offsetX;
-                this.y = e.offsetY;
-            }
-            
-            interact(ball) {
-                const dx = this.x - ball.x;
-                const dy = this.y - ball.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const maxDistance = this.radius + ball.radius;
-                
-                if (distance < maxDistance) {
-                    const force = (maxDistance - distance) / maxDistance;
-                    ball.vx += (dx / distance) * force * this.strength;
-                    ball.vy += (dy / distance) * force * this.strength;
-                }
-            }
-        }
-
-        const mouse = new Mouse();
-
-        function handleCollisions() {
-            for (let i = 0; i < balls.length; i++) {
-                for (let j = i + 1; j < balls.length; j++) {
-                    const dx = balls[j].x - balls[i].x;
-                    const dy = balls[j].y - balls[i].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    const minDistance = balls[i].radius + balls[j].radius;
-
-                    if (distance < minDistance) {
-                        const angle = Math.atan2(dy, dx);
-                        const overlap = minDistance - distance;
-                        
-                        balls[i].x -= overlap * Math.cos(angle) * 0.5;
-                        balls[i].y -= overlap * Math.sin(angle) * 0.5;
-                        balls[j].x += overlap * Math.cos(angle) * 0.5;
-                        balls[j].y += overlap * Math.sin(angle) * 0.5;
-
-                        const speed1 = Math.sqrt(balls[i].vx * balls[i].vx + balls[i].vy * balls[i].vy);
-                        const speed2 = Math.sqrt(balls[j].vx * balls[j].vx + balls[j].vy * balls[j].vy);
-                        const direction = angle;
-                        
-                        balls[i].vx = Math.cos(direction) * speed2 * bounce;
-                        balls[i].vy = Math.sin(direction) * speed2 * bounce;
-                        balls[j].vx = Math.cos(direction + Math.PI) * speed1 * bounce;
-                        balls[j].vy = Math.sin(direction + Math.PI) * speed1 * bounce;
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            ctx.fillStyle = 'rgba(240, 240, 240, 0.2)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            balls.forEach(ball => {
-                ball.update();
-                ball.draw();
-                mouse.interact(ball);
-            });
-
-            handleCollisions();
-            requestAnimationFrame(animate);
-        }
-
-        // Event Listeners
-        canvas.addEventListener('mousemove', (e) => mouse.update(e));
-        
-        canvas.addEventListener('mousedown', (e) => {
-            if (!isMachineGun) return;
-            const shoot = () => {
-                if (Date.now() - lastShot > 1000/fireRate) {
-                    const angle = Math.random() * Math.PI * 2;
-                    balls.push(new Ball(
-                        e.offsetX, e.offsetY,
-                        Math.cos(angle) * 20,
-                        Math.sin(angle) * 20,
-                        parseInt(sizeSlider.value)
-                    ));
-                    lastShot = Date.now();
-                }
-                requestAnimationFrame(shoot);
-            };
-            shoot();
-        });
-
-        canvas.addEventListener('mouseup', (e) => {
-            if (isMachineGun) return;
-            const velocityX = (mouse.x - e.offsetX) * 0.2;
-            const velocityY = (mouse.y - e.offsetY) * 0.2;
-            balls.push(new Ball(mouse.x, mouse.y, velocityX, velocityY, parseInt(sizeSlider.value)));
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'q') balls.length = 0;
-            if (e.key.toLowerCase() === 'g') isMachineGun = !isMachineGun;
-        });
-
-        sizeSlider.addEventListener('input', () => sizeValue.textContent = sizeSlider.value);
-        fireRateSlider.addEventListener('input', () => {
-            fireRate = fireRateSlider.value;
-            fireRateValue.textContent = fireRate;
-        });
-
-        animate();
-    </script>
+  </div>
 </body>
 </html>
